@@ -12,7 +12,7 @@ class LoginForm(FlaskForm):
 class SignupForm(FlaskForm):
     username = StringField("Username", validators = [DataRequired()])
     password = PasswordField("Password", validators = [DataRequired()])
-    fname = StringField("Full Name", validators = [DataRequired()])
+    name = StringField("Full Name", validators = [DataRequired()])
     email = TextField('Email', validators=[DataRequired(), Email()])
     location = StringField("Location", validators = [DataRequired()])
     biography = TextAreaField("Biography", validators = [DataRequired()])
@@ -25,7 +25,7 @@ class AddCarForm(FlaskForm):
     colour = StringField("Colour", validators = [DataRequired()])
     year = StringField("Year", validators = [DataRequired()])
     price= FloatField("Price", validators = [DataRequired()])
-    car_type = StringField("Car Type", validators = [DataRequired()])
-    transimission = SelectField("Transimission", choices=[('Automatic', 'Automatic'), ('Manual', 'Manual')])
+    car_type = SelectField("Car Type", choices=[('Convertable', 'Convertable'), ('Coupe', 'Coupe'), ('Hatchback', 'Hatchback'), ('Minivan', 'Minivan'), ('Pickup Truck', 'Pickup Truck'), ('Sedan', 'Sedan'), ('Sports Car', 'Sports Car'), ('Station Wagon', 'Station Wagon'), ('SUV', 'SUV')])
+    transmission = SelectField("Transmission", choices=[('Automatic', 'Automatic'), ('Manual', 'Manual')])
     description = TextAreaField("Descripton", validators = [DataRequired()])
     photo = FileField("Photo", validators=[FileRequired(), FileAllowed(['jpg','png'])])

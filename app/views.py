@@ -4,12 +4,13 @@ Jinja2 Documentation:    http://jinja.pocoo.org/2/documentation/
 Werkzeug Documentation:  http://werkzeug.pocoo.org/documentation/
 This file creates your application.
 """
-import os
-from app import app, db
-from flask import render_template, request, session
-from .forms import LoginForm, SignupForm, AddCarForm
+import os, jwt
+from app import app, db, login_manager
+from flask import render_template, request, session, jsonify
+from flask_login import login_user, logout_user, current_user, login_required
+from .forms import *
+from .models import *
 from werkzeug.utils import secure_filename
-from flask_login import login_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 ###
@@ -33,7 +34,138 @@ def index(path):
     return render_template('index.html')
 
 
-# @app.route('/api/upload', methods=['POST'])
+@login_manager.user_loader 
+def load_user(id):
+    return Users.query.get(int(id))
+
+###
+# API ROUTES
+###
+
+@app.route('/api/register', methods=['POST'])
+def register():
+    form = SignupForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            username = request.form['username']
+            password = generate_password_hash(request.form['password'], method='pbkdf2:sha256')
+            email = request.form['email']
+            name = request.form['name']
+            location = request.form['location']
+            bio = request.form['biography']
+            
+            photo = request.files['photo']
+            filename = secure_filename(photo.filename)
+            photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+            user = Users(username, password, name, email, location, bio, filename)
+            db.session.add(user)
+            db.session.commit() 
+            return jsonify({ 'message': 'User Succesfully Added =)'})               
+        error = {'errors': form_errors(form)}
+        return jsonify(error)
+    return jsonify({ 'error_message': 'Failed to Register New User =('})  #ahhhh
+
+@app.route('/api/auth/login',methods=['POST'])
+def login():
+    lform = LoginForm()
+    if request.method == 'POST': 
+        if lform.validate_on_submit():
+            username = request.form['username']
+            password = request.form['password']
+            result = db.session.query(Users).filter_by(username=username).first()
+            if (result == None):
+                loginmsg={ "error_message" : "User not found!" }
+            elif (check_password_hash(result.password, password)):
+                login_user(result)
+                jwt_payload = { "username": result.username, "password": result.password}
+                jwt_token = jwt.encode(jwt_payload, app.config['SECRET_KEY'], algorithm="HS256")
+                loginmsg = { "message" : "Login successful!" , "token" : jwt_token }
+            else:
+                loginmsg={"error_message":"Password Incorrect!",}
+            return jsonify(loginmsg)
+        return jsonify({"errors": form_errors(lform)})
+    return jsonify({'error_message': 'Method Not Allowed'})
+
+@app.route('/api/auth/logout', methods=['POST'])
+@login_required
+def logout():
+    session.pop('logged-in',None)
+    logout_user()
+    logoutmsg = {"message" : "Log out successful"}
+    return jsonify(logoutmsg = logoutmsg)
+
+@app.route('/api/cars', methods=['GET'])
+@login_required
+def getcars():
+    pass
+
+@app.route('/api/cars', methods=['POST'])
+# @login_required
+def addcars():
+    form = AddCarForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        description = form.description.data
+        make = form.make.data
+        model = form.model.data
+        colour = form.colour.data
+        year = form.year.data
+        price = form.price.data
+        car_type = form.car_type.data
+        transmission = form.transmission.data
+        photo = request.files['photo']
+        user_id = current_user.uid
+
+        filename = secure_filename(photo.filename)
+        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+        car = Cars(description, make, model, colour, year, transmission, car_type, price, filename, user_id) 
+        db.session.add(car)
+        db.session.commit()
+        return jsonify({"description" : description,\
+                "year": year,\
+                    "make": make,\
+                        "model" : model,\
+                            "colour": colour,\
+                                "transmission": transmission,\
+                                    "car_type" : car_type, \
+                                        "price": price,\
+                                            "photo": filename,\
+                                                "user_id": user_id})
+    return jsonify(form_errors(form))
+
+        
+@app.route('/api/cars/<int:car_id>', methods=['GET'])
+@login_required
+def getacar(car_id):
+    pass
+
+@app.route('/api/cars/<int:car_id>/favourite', methods=['POST'])
+@login_required  
+def addfav():
+    pass
+
+@app.route('/api/search', methods=['GET'])
+@login_required
+def search():
+    pass
+
+@app.route('/api/users/<int:user_id>', methods=['GET'])
+@login_required
+def getuser(user_id):
+    pass
+
+@app.route('/api/users/<int:user_id>/favourites', methods=['GET'])
+@login_required
+def getfavs(user_id):
+    pass
+
+
+###
+#API ROUTES END
+###
+
+# @app.route('/api/upload', methods=['POST']) 
 # def upload():
 #     form = UploadForm()
 
@@ -51,31 +183,7 @@ def index(path):
 #                     "description": "%s"}' % (photo.filename,description)
 #         return '{"errors": "%s"}' % form_errors(form)
 
-# Here we define a function to collect form errors from Flask-WTF
-# which we can later use
-# @app.route('/api/auth/login',methods=['POST'])
-# def login():
-#     lform = LoginForm()
-#     if request.method == 'POST' and lform.validate_on_submit():
-#         username = request.form['username']
-#         password = request.form['password']
-#         result = db.session.query(User).filter_by(username=username).first()
-#         if (result == None):
-#             loginmsg={"message":"User not found!",}
-#         elif (check_password_hash(result.password, password)):
-#             login_user(result)
-#             session["uname"] = request.form['username']
-#             loginmsg={"message":"Login successful!",}
-#         else:
-#             loginmsg={"message":"Password Incorrect!",}
-#         return jsonify(loginmsg = loginmsg)
-#      return jsonify(form_errors(form))
 
-
-#Helper Methods
-def encrypt_password(self, password):
-        return generate_password_hash(password, method='pbkdf2:sha256')
-    
 def form_errors(form):
     error_messages = []
     """Collects form errors"""

@@ -49,8 +49,7 @@ class Users(db.Model):
     photo = db.Column (db.String(255))
     date_joined = db.Column(db.DateTime)
 
-    def __init__(self,uid,username,password,name,email,location,biography,photo):
-        self.uid = uid
+    def __init__(self,username,password,name,email,location,biography,photo):
         self.username = username
         self.password = password
         self.name = name
