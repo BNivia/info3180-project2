@@ -1,1 +1,4 @@
-# info3180-project2
+# flask_starter
+Starter code for a new Flask Application
+
+Best tema ever <3
