@@ -4,39 +4,96 @@ Jinja2 Documentation:    http://jinja.pocoo.org/2/documentation/
 Werkzeug Documentation:  http://werkzeug.pocoo.org/documentation/
 This file creates your application.
 """
-
-from app import app
-from flask import render_template, request, redirect, url_for
-
+import os
+from app import app, db
+from flask import render_template, request, session
+from .forms import LoginForm, SignupForm, AddCarForm
+from werkzeug.utils import secure_filename
+from flask_login import login_user, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
 
 ###
 # Routing for your application.
 ###
 
-@app.route('/')
-def home():
-    """Render website's home page."""
-    return render_template('home.html')
+
+# Please create all new routes and view functions above this route.
+# This route is now our catch all route for our VueJS single page
+# application.
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def index(path):
+    """
+    Because we use HTML5 history mode in vue-router we need to configure our
+    web server to redirect all routes to index.html. Hence the additional route
+    "/<path:path".
+
+    Also we will render the initial webpage and then let VueJS take control.
+    """
+    return render_template('index.html')
 
 
-@app.route('/about/')
-def about():
-    """Render the website's about page."""
-    return render_template('about.html', name="Mary Jane")
+# @app.route('/api/upload', methods=['POST'])
+# def upload():
+#     form = UploadForm()
+
+#     if (request.method == 'POST'):
+#         if (form.validate_on_submit()):
+#             description = form.description.data
+#             photo = form.photo.data
+
+#             filename = secure_filename(photo.filename)
+#             photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+#             return '{\
+#                     "message": "File Upload Successful",\
+#                     "filename": "%s",\
+#                     "description": "%s"}' % (photo.filename,description)
+#         return '{"errors": "%s"}' % form_errors(form)
+
+# Here we define a function to collect form errors from Flask-WTF
+# which we can later use
+# @app.route('/api/auth/login',methods=['POST'])
+# def login():
+#     lform = LoginForm()
+#     if request.method == 'POST' and lform.validate_on_submit():
+#         username = request.form['username']
+#         password = request.form['password']
+#         result = db.session.query(User).filter_by(username=username).first()
+#         if (result == None):
+#             loginmsg={"message":"User not found!",}
+#         elif (check_password_hash(result.password, password)):
+#             login_user(result)
+#             session["uname"] = request.form['username']
+#             loginmsg={"message":"Login successful!",}
+#         else:
+#             loginmsg={"message":"Password Incorrect!",}
+#         return jsonify(loginmsg = loginmsg)
+#      return jsonify(form_errors(form))
+
+
+#Helper Methods
+def encrypt_password(self, password):
+        return generate_password_hash(password, method='pbkdf2:sha256')
+    
+def form_errors(form):
+    error_messages = []
+    """Collects form errors"""
+    for field, errors in form.errors.items():
+        for error in errors:
+            message = u"Error in the %s field - %s" % (
+                    getattr(form, field).label.text,
+                    error
+                )
+            error_messages.append(message)
+
+    return error_messages
 
 
 ###
 # The functions below should be applicable to all Flask apps.
 ###
 
-# Display Flask WTF errors as Flash messages
-def flash_errors(form):
-    for field, errors in form.errors.items():
-        for error in errors:
-            flash(u"Error in the %s field - %s" % (
-                getattr(form, field).label.text,
-                error
-            ), 'danger')
 
 @app.route('/<file_name>.txt')
 def send_text_file(file_name):
@@ -64,4 +121,4 @@ def page_not_found(error):
 
 
 if __name__ == '__main__':
-    app.run(debug=True,host="0.0.0.0",port="8080")
+    app.run(debug=True, host="0.0.0.0", port="8080")

@@ -1,0 +1,15 @@
+#Python stuff
+__pycache__/
+*.py[cod]
+*$py.class
+
+#venv
+.venv/
+venv/
+
+#Vs generated json
+.vscode
+
+#env txt file
+env.txt
+.env.txt
