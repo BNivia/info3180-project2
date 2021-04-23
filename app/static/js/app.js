@@ -100,6 +100,7 @@ const loginForm = {
   },
   methods:{
       login(){
+          let router = this.$router;
           let loginForm = document.getElementById('loginForm');
           let form_data = new FormData(loginForm);
 
@@ -107,7 +108,7 @@ const loginForm = {
               method:'POST',
               body: form_data,
               headers:{
-                  'X-CSRFToken': token
+                  'X-CSRFToken': token,
               },
               credentials: 'same-origin'
           }) 
@@ -123,6 +124,8 @@ const loginForm = {
                 // Other error unrelated to form
               }else if('message' in jsonResponse){
                 //Suceessss
+                jwt_token = jsonResponse.token;
+                router.push('/cars/new')
               }  
           }) 
           .catch (function(error){
@@ -176,6 +179,7 @@ const signupForm = {
   },
   methods:{
       signup(){
+          let router = this.$router;
           let form = document.forms[0];
           let form_data = new FormData(form);
           
@@ -198,7 +202,8 @@ const signupForm = {
               }else if('error_message' in jsonResponse){
                 // Other error unrelated to form
               }else if('message' in jsonResponse){
-                //Suceessss
+                //Success
+                router.push('/login');
               }  
           })
           .catch (function(error){
@@ -281,7 +286,8 @@ const addCarForm = {
               method:'POST',
               body: form_data,
               headers:{
-                  'X-CSRFToken': token
+                  'X-CSRFToken': token,
+                  'Authorization': `Bearer ${jwt_token}`
               },
               credentials: 'same-origin'
           })
