@@ -80,7 +80,7 @@ def login():
                 login_user(result)
                 jwt_payload = { "username": result.username, "password": result.password}
                 jwt_token = jwt.encode(jwt_payload, app.config['SECRET_KEY'], algorithm="HS256")
-                loginmsg = { "message" : "Login successful!" , "token" : jwt_token }
+                loginmsg = { "message" : "Login successful!" , "token" : jwt_token, "user_id": result.uid}
             else:
                 loginmsg={"error_message":"Password Incorrect!",}
             return jsonify(loginmsg)
@@ -226,6 +226,7 @@ def search():
 @app.route('/api/users/<int:user_id>', methods=['GET'])
 @login_required
 def getuser(user_id):
+    print(current_user.uid)
     if request.method == 'GET':
         result = db.session.query(Users).filter_by(uid=user_id).first()
         if result == [] or result == None:
@@ -271,29 +272,9 @@ def getfavs(user_id):
             return jsonify({"data": favs})
     return jsonify({'error_message': 'Method Not Allowed'})
 
-
 ###
 #API ROUTES END
 ###
-
-# @app.route('/api/upload', methods=['POST']) 
-# def upload():
-#     form = UploadForm()
-
-#     if (request.method == 'POST'):
-#         if (form.validate_on_submit()):
-#             description = form.description.data
-#             photo = form.photo.data
-
-#             filename = secure_filename(photo.filename)
-#             photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
-#             return '{\
-#                     "message": "File Upload Successful",\
-#                     "filename": "%s",\
-#                     "description": "%s"}' % (photo.filename,description)
-#         return '{"errors": "%s"}' % form_errors(form)
-
 
 def form_errors(form):
     error_messages = []

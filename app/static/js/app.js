@@ -1,11 +1,11 @@
 // Global Variables Space
 var jwt_token; 
+var global_user_id;
 // 
 
 const app = Vue.createApp({
   data() {
       return {
-
       }
   }
 });
@@ -40,10 +40,21 @@ app.component('app-header', {
         <li class="nav-item active">
           <router-link class="nav-link" to="/explore">Explore<span class="sr-only">(current)</span></router-link>
         </li>
+        <li class="nav-item active">
+          <router-link class="nav-link" v-on:click="gotoUser()" to="">View Profile<span class="sr-only">(current)</span></router-link>
+        </li>
       </ul>
     </div>
   </nav>
-  `
+  `,
+  methods: {
+    logout(){},//lol ah bouta shub
+    gotoUser(){ //MARKED user Profile, lol Jantae =( fix this nuh
+      let router = this.$router;
+      console.log(this.global_user_id)
+      // router.push(`/users/${this.global_user_id}`);
+  },
+  }
 });
 
 app.component('app-footer', {
@@ -65,9 +76,15 @@ app.component('app-footer', {
 const Home = {
   name: 'Home',
   template: `
-  <div class="jumbotron">
-      <h1>Project 2</h1>
-      <p class="lead">In this lab we will demonstrate VueJS working with Forms and Form Validation from Flask-WTF.</p>
+  <div>
+  <br>
+      <div class="home-col-1">
+        <h1>Buy and Sell Cars Online</h1>
+        <p>United Auto Sales Provides the fastest, easiest and most user friendly way to buy or sell cars online. Find a Great Price on the Vehicle You Want</p>
+        <router-link class="btn btn-primary" to="/login">Login<span class="sr-only">(current)</span></router-link>
+        <router-link class="btn btn-info" to="/register">Register<span class="sr-only">(current)</span></router-link>
+      </div>
+      <div class="home-col-2"></div>
   </div>
   `,
   data() {
@@ -102,7 +119,8 @@ const loginForm = {
       </div>
   </form>
   `,
-  data() {
+  data()
+  {
       return {}
   },
   methods:{
@@ -132,6 +150,8 @@ const loginForm = {
               }else if('message' in jsonResponse){
                 //Suceessss
                 jwt_token = jsonResponse.token;
+                global_user_id = jsonResponse.user_id;
+                console.log(global_user_id)
                 router.push('/cars/new')
               }  
           }) 
@@ -512,7 +532,7 @@ const getUser = {
         <div class = "card-body sincar" id = "{{user.id}}">
           <h3 class="card-title">{{user.name}}</h3>
           <p class="model card-subtitle text-muted">{{user.username}}</p>
-          <p class="card-text"> {{user.biography}}
+          <p class="card-text"> {{user.biography}}</p>
           <div>
             <table>
               <tr>
@@ -521,7 +541,7 @@ const getUser = {
               </tr>
               <tr>
                 <td><h5>Location</h5></td>
-                <td><{{user.location}}</td>
+                <td>{{user.location}}</td>
               </tr>
               <tr>
                 <td><h5>Joined</h5></td>
@@ -542,9 +562,8 @@ const getUser = {
   created(){
       let self = this;
       let route = this.$route;
-      let id = route.params.car_id;
 
-      fetch(`/api/users/${id}`,{
+      fetch(`/api/users/${global_user_id}`,{
           method:'GET',
           headers:{
               'X-CSRFToken': token,
