@@ -322,7 +322,7 @@ const addCarForm = {
 const getCars = {
   name: 'getCars',
   template: `
-  <br><h1>Cars</h1><br>
+  <br><h1>Cars</h1>
   <div class = "card-set">
     <div class = "cars card" v-for="car in cars">
         <img class ="card-img-top" v-bind:src=car.photo > 
@@ -445,6 +445,8 @@ const getCars = {
 const getACar = {
   name: 'getACar',
   template: `
+    <br>
+    <button v-on:click="goBack" class="btn btn-primary">Back to Explore</button>
     <br><br>
     <div class="card card-dif" v-if="car != {}">
         <img class ="card-img-top card-img-diff" v-bind:src=car.photo > 
@@ -492,15 +494,94 @@ const getACar = {
           console.log(error);
       })
   },
+  methods: {
+    goBack(){
+        let router = this.$router;
+        router.push("/explore");
+    }
+  },
+};
+
+
+const getUser = {
+  name: 'getUser',
+  template: `
+    <br><br>
+    <div class="card" v-if="user != {}">
+        <img class ="" v-bind:src=user.photo > 
+        <div class = "card-body sincar" id = "{{user.id}}">
+          <h3 class="card-title">{{user.name}}</h3>
+          <p class="model card-subtitle text-muted">{{user.username}}</p>
+          <p class="card-text"> {{user.biography}}
+          <div>
+            <table>
+              <tr>
+                <td><h5>Email</h5></td>
+                <td>{{user.email}}</td>
+              </tr>
+              <tr>
+                <td><h5>Location</h5></td>
+                <td><{{user.location}}</td>
+              </tr>
+              <tr>
+                <td><h5>Joined</h5></td>
+                <td>{{user.date_joined}}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+    </div>
+
+    <button v-on:click="goBack" class="btn btn-primary btn-block">Go Back to Explore</button>
+  `,
+  data() {
+      return {
+        user: {},
+      }
+  },
+  created(){
+      let self = this;
+      let route = this.$route;
+      let id = route.params.car_id;
+
+      fetch(`/api/users/${id}`,{
+          method:'GET',
+          headers:{
+              'X-CSRFToken': token,
+              'Authorization': `Bearer ${jwt_token}`
+          },
+          credentials: 'same-origin'
+      })
+      .then(function (response) {
+          return response.json();
+      })
+      .then(function (jsonResponse) {
+          // display a success message
+          if('errors' in jsonResponse){
+            //Form errrors
+          }else if('error_message' in jsonResponse){
+            // Other error unrelated to form
+          }else if('data' in jsonResponse){
+            self.user = jsonResponse.data;
+          }  
+      })
+      .catch (function(error){
+          console.log(error);
+      })
+  },
+  methods: {
+    goBack(){}
+  },
 };
 
 const routes = [
   { path: "/", component: Home },
   { path: "/login", component: loginForm}, 
   { path: "/register", component: signupForm},
-  { path: "/cars/new", component: addCarForm},
   { path: "/explore", component: getCars},
+  { path: "/cars/new", component: addCarForm},
   { path: "/cars/:car_id(\\d+)", component: getACar},
+  { path: "/users/:user_id(\\d+)", component: getUser},
   { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFound }
 ];
 
