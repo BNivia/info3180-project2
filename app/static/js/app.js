@@ -1,5 +1,5 @@
 // Global Variables Space
-var jwt_token;
+var jwt_token; 
 // 
 
 const app = Vue.createApp({
@@ -32,6 +32,9 @@ app.component('app-header', {
         </li>
         <li class="nav-item active">
           <router-link class="nav-link" to="/cars/new">Add Car<span class="sr-only">(current)</span></router-link>
+        </li>
+        <li class="nav-item active">
+          <router-link class="nav-link" to="/explore">View Cars<span class="sr-only">(current)</span></router-link>
         </li>
       </ul>
     </div>
@@ -312,11 +315,130 @@ const addCarForm = {
   }
 };
 
+const getCars = {
+  name: 'getCars',
+  template: `
+  <br><h1>Cars</h1><br>
+  <div class = "card-set">
+    <div class = "cars card" v-for="car in cars">
+        <img class ="card-img-top" v-bind:src=car.photo > 
+        <div class = "card-body sincar" id = "{{car.cid}}">
+            <div class="card-title">
+                <h3>{{car.year}} {{car.make}}</h3>
+                <p class="price">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tag" viewBox="0 0 16 16">
+                        <path d="M6 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm-1 0a.5.5 0 1 0-1 0 .5.5 0 0 0 1 0z"/>
+                        <path d="M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1zm0 5.586 7 7L13.586 9l-7-7H2v4.586z"/>
+                    </svg>
+                    {{car.price}}
+                </p>
+            </div>
+            <p class="model card-subtitle text-muted">{{car.model}}</p>
+        </div>
+    </div>
+  </div>
+
+  `,
+  data() {
+      return {
+        cars: []
+      }
+  },
+  created(){
+    let self = this;
+    fetch('/api/cars',{
+        method:'GET',
+        headers:{
+            'X-CSRFToken': token,
+            'Authorization': `Bearer ${jwt_token}`
+        },
+        credentials: 'same-origin'
+    })
+    .then(function (response) {
+        return response.json();
+    })
+    .then(function (jsonResponse) {
+        // display a success message
+        console.log(jsonResponse);
+        if('errors' in jsonResponse){
+        }else if('error_message' in jsonResponse){
+        }else if('data' in jsonResponse){
+          self.cars = jsonResponse.data;  
+          console.log(jsonResponse.data)
+        }  
+    })
+    .catch (function(error){
+        console.log(error);
+    })
+  },
+  methods:{ 
+      getcars(){ 
+          fetch('/api/cars',{
+              method:'GET',
+              headers:{
+                  'X-CSRFToken': token,
+                  'Authorization': `Bearer ${jwt_token}`
+              },
+              credentials: 'same-origin'
+          })
+          .then(function (response) {
+              return response.json();
+          })
+          .then(function (jsonResponse) {
+              // display a success message
+              console.log(jsonResponse);
+              if('errors' in jsonResponse){
+                //Form errrors
+              }else if('error_message' in jsonResponse){
+                // Other error unrelated to form
+              }else if('data' in jsonResponse){
+                self.cars = jsonResponse.data;
+                console.log(jsonResponse.data)
+              }  
+          })
+          .catch (function(error){
+              console.log(error);
+          })              
+      },
+      getimage(filename){
+        fetch('/uploads/<filename>',{
+          method:'GET',
+          data: filename,
+          headers:{
+              'X-CSRFToken': token,
+              'Authorization': `Bearer ${jwt_token}`
+          },
+          credentials: 'same-origin'
+      })
+      .then(function (response) {
+          console.log("SUUUUUPPPPP")
+          return response.json();
+      })
+      .then(function (jsonResponse) {
+          // display a success message
+          console.log(jsonResponse);
+          if('errors' in jsonResponse){
+            //Form errrors
+          }else if('error_message' in jsonResponse){
+            // Other error unrelated to form
+          }else if('data' in jsonResponse){
+            return jsonResponse.data;
+            // console.log(jsonResponse.data)
+          }  
+      })
+      .catch (function(error){
+          console.log(error);
+      })              
+  }
+  }
+};
+
 const routes = [
   { path: "/", component: Home },
   { path: "/login", component: loginForm}, 
   { path: "/register", component: signupForm},
   { path: "/cars/new", component: addCarForm},
+  { path: "/explore", component: getCars},
   { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFound }
 ];
 
