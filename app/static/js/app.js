@@ -49,7 +49,7 @@ app.component('app-header', {
   `,
   methods: {
     logout(){},//lol ah bouta shub
-    gotoUser(){ //MARKED user Profile, lol Jantae =( fix this nuh
+    gotoUser(){ //MARKED user Profile, lol Jantae =( fix this nuh Saturday man
       let router = this.$router;
       console.log(this.global_user_id)
       // router.push(`/users/${this.global_user_id}`);
