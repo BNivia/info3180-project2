@@ -173,7 +173,7 @@ def getacar(car_id):
                                         "transmission": result.transmission,\
                                             "car_type": result.car_type,\
                                                 "price": result.price,\
-                                                    "photo": result.photo,\
+                                                    "photo": "/uploads/" + result.photo,\
                                                         "user_id": result.user_id}
             return jsonify({"data": car})
     return jsonify({'error_message': 'Method Not Allowed'})
@@ -218,7 +218,7 @@ def search():
                                         "transmission": car.transmission,\
                                             "car_type": car.car_type,\
                                                 "price": car.price,\
-                                                    "photo": car.photo,\
+                                                    "photo": "/uploads/" + car.photo,\
                                                         "user_id": car.user_id})
             return jsonify({"data": cars})
     return jsonify({"error_message": 'Method Not Allowed'})
@@ -266,7 +266,7 @@ def getfavs(user_id):
                                             "transmission": f.transmission,\
                                                 "car_type": f.car_type,\
                                                     "price": f.price,\
-                                                        "photo": f.photo,\
+                                                        "photo": "/uploads/" + f.photo,\
                                                             "user_id": f.user_id})
             return jsonify({"data": favs})
     return jsonify({'error_message': 'Method Not Allowed'})

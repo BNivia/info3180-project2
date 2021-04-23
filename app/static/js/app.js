@@ -14,7 +14,11 @@ app.component('app-header', {
   name: 'AppHeader',
   template: `
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
-    <a class="navbar-brand" href="#">Project 2</a>
+    <a class="navbar-brand" href="#">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-truck" viewBox="0 0 16 16">
+            <path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+        </svg>
+        United Auto Sales</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -34,7 +38,7 @@ app.component('app-header', {
           <router-link class="nav-link" to="/cars/new">Add Car<span class="sr-only">(current)</span></router-link>
         </li>
         <li class="nav-item active">
-          <router-link class="nav-link" to="/explore">View Cars<span class="sr-only">(current)</span></router-link>
+          <router-link class="nav-link" to="/explore">Explore<span class="sr-only">(current)</span></router-link>
         </li>
       </ul>
     </div>
@@ -333,7 +337,8 @@ const getCars = {
                     {{car.price}}
                 </p>
             </div>
-            <p class="model card-subtitle text-muted">{{car.model}}</p>
+            <p class="model card-subtitle text-muted">{{car.model}}</p> 
+            <button v-on:click="gotoCar(car.cid)" class="btn btn-primary btn-block">View Details</button>
         </div>
     </div>
   </div>
@@ -400,10 +405,70 @@ const getCars = {
               console.log(error);
           })              
       },
+      gotoCar(num){
+          let router = this.$router;
+          router.push(`/cars/${num}`);
+      },
       getimage(filename){
-        fetch('/uploads/<filename>',{
+          fetch('/uploads/<filename>',{
+            method:'GET',
+            data: filename,
+            headers:{
+                'X-CSRFToken': token,
+                'Authorization': `Bearer ${jwt_token}`
+            },
+            credentials: 'same-origin'
+        })
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (jsonResponse) {
+            // display a success message
+            console.log(jsonResponse);
+            if('errors' in jsonResponse){
+              //Form errrors
+            }else if('error_message' in jsonResponse){
+              // Other error unrelated to form
+            }else if('data' in jsonResponse){
+              return jsonResponse.data;
+              // console.log(jsonResponse.data)
+            }  
+        })
+        .catch (function(error){
+            console.log(error);
+        })              
+      }
+  }
+};
+
+
+const getACar = {
+  name: 'getACar',
+  template: `
+    <br><br>
+    <div class="card card-dif" v-if="car != {}">
+        <img class ="card-img-top card-img-diff" v-bind:src=car.photo > 
+        <div class = "card-body sincar" id = "{{car.cid}}">
+            <div class="card-title">
+                <h3>{{car.year}} {{car.make}}</h3>
+            </div>
+            <p class="model card-subtitle text-muted">{{car.model}}</p>
+            <p class="card-text price">{{car.description}}</p>
+        </div>
+    </div>
+  `,
+  data() {
+      return {
+        car: {},
+      }
+  },
+  created(){
+      let self = this;
+      let route = this.$route;
+      let id = route.params.car_id;
+
+      fetch(`/api/cars/${id}`,{
           method:'GET',
-          data: filename,
           headers:{
               'X-CSRFToken': token,
               'Authorization': `Bearer ${jwt_token}`
@@ -411,26 +476,22 @@ const getCars = {
           credentials: 'same-origin'
       })
       .then(function (response) {
-          console.log("SUUUUUPPPPP")
           return response.json();
       })
       .then(function (jsonResponse) {
           // display a success message
-          console.log(jsonResponse);
           if('errors' in jsonResponse){
             //Form errrors
           }else if('error_message' in jsonResponse){
             // Other error unrelated to form
           }else if('data' in jsonResponse){
-            return jsonResponse.data;
-            // console.log(jsonResponse.data)
+            self.car = jsonResponse.data;
           }  
       })
       .catch (function(error){
           console.log(error);
-      })              
-  }
-  }
+      })
+  },
 };
 
 const routes = [
@@ -439,6 +500,7 @@ const routes = [
   { path: "/register", component: signupForm},
   { path: "/cars/new", component: addCarForm},
   { path: "/explore", component: getCars},
+  { path: "/cars/:car_id(\\d+)", component: getACar},
   { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFound }
 ];
 
