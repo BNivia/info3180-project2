@@ -17,3 +17,34 @@ body {
 .card-img-diff{
     width: 50%;
 }
+
+.home{
+    display: flex;
+    width: 100%;
+}
+
+.home-col-1{
+    float: left;
+    width: 50%;
+    padding: 10%;
+}
+
+.home-col-1 h1{
+    text-decoration: solid;
+}
+
+.home-col-2{
+    float: right;
+    width: 50%;
+    
+}
+
+#homepic{
+    width: 100%;
+    
+}
+
+.btn {
+    margin-right: 10px;
+    width: 150px;
+}
