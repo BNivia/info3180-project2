@@ -90,7 +90,6 @@ def login():
 @app.route('/api/auth/logout', methods=['POST'])
 @login_required
 def logout():
-    session.pop('logged-in',None)
     logout_user()
     logoutmsg = {"message" : "Log out successful"}
     return jsonify(logoutmsg)
@@ -99,7 +98,7 @@ def logout():
 @login_required
 def getcars():
     if request.method == 'GET':
-        result = db.session.query(Cars).order_by(Cars.cid).all()
+        result = db.session.query(Cars).order_by(Cars.cid.desc()).limit(3).all()
         if result == []:
             return jsonify({"error_message": "No Cars Available."})
         else:
@@ -120,7 +119,7 @@ def getcars():
     return jsonify({'error_message': 'Method Not Allowed'}) 
   
 @app.route('/api/cars', methods=['POST'])
-# @login_required
+@login_required
 def addcars():
     form = AddCarForm()
     if request.method == 'POST':
@@ -182,12 +181,18 @@ def getacar(car_id):
 @login_required  
 def addfav(car_id):
     if request.method == 'POST': 
-        user_id = current_user.uid
-        fav = Favourites(car_id, user_id) 
-        db.session.add(fav) 
-        db.session.commit()
-        return jsonify({"car_id": car_id,\
-            "user_id": user_id})
+        uid = current_user.uid
+        result = db.session.query(Favourites).filter(Favourites.user_id == uid, Favourites.car_id == car_id).first()
+        if result != None: 
+            test = {"fav_id": result.fid}
+            return jsonify({"data": test})
+        else: #working now
+            fav = Favourites(car_id, uid)
+            db.session.add(fav) 
+            db.session.commit()
+            test = {"car_id": car_id,\
+                "user_id": uid}
+            return jsonify({"data": test})
     return jsonify({'error_message': 'Method Not Allowed'})
 
 @app.route('/api/search', methods=['GET'])
@@ -197,10 +202,12 @@ def search():
         make = request.args.get('make')
         model = request.args.get('model')
         if make == None and model == None:
-            return jsonify({"error_message": "No search results are available"})
-        elif make == None:
+            return jsonify({"error_message1": "No Search Terms where entered"}) 
+        elif make == '' and model == '':
+            result = db.session.query(Cars).all()
+        elif make == '':
             result = db.session.query(Cars).filter_by(model=model).all()
-        elif model == None:
+        elif model == '':
             result = db.session.query(Cars).filter_by(make=make).all()
         else:
             result = db.session.query(Cars).filter(Cars.model==model, Cars.make==make).all()
@@ -248,25 +255,24 @@ def getuser(user_id):
 @login_required
 def getfavs(user_id):
     if request.method == 'GET':
-        result = db.session.query(Favourites).filter_by(uid=user_id).all()
+        result = db.session.query(Favourites).filter(Favourites.user_id ==user_id).all()
         if result == [] or result == None:
             return jsonify({"error_message": "User has no favourites."})
         else: 
             favs = []
             for fav in result:
-                afav = db.session.query(Cars).filter_by(cid=fav.car_id).first()
-                for f in afav:
-                    favs.append({"id": f.car_id,\
-                        "description": f.description,\
-                            "year": f.year,\
-                                "make": f.make,\
-                                    "model": f.model,\
-                                        "colour": f.colour,\
-                                            "transmission": f.transmission,\
-                                                "car_type": f.car_type,\
-                                                    "price": f.price,\
-                                                        "photo": "/uploads/" + f.photo,\
-                                                            "user_id": f.user_id})
+                afav = db.session.query(Cars).filter(Cars.cid==fav.car_id).first()
+                favs.append({"id": afav.cid,\
+                    "description": afav.description,\
+                        "year": afav.year,\
+                            "make": afav.make,\
+                                "model": afav.model,\
+                                    "colour": afav.colour,\
+                                        "transmission": afav.transmission,\
+                                            "car_type": afav.car_type,\
+                                                "price": afav.price,\
+                                                    "photo": "/uploads/" + afav.photo,\
+                                                        "user_id": afav.user_id})
             return jsonify({"data": favs})
     return jsonify({'error_message': 'Method Not Allowed'})
 
