@@ -102,11 +102,12 @@ const Home = {
       <div class="home-col-1">
         <h1>Buy and Sell Cars Online</h1>
         <p>United Auto Sales Provides the fastest, easiest and most user friendly way to buy or sell cars online. Find a Great Price on the Vehicle You Want</p>
-        <router-link class="btn btn-primary" to="/login">Login<span class="sr-only">(current)</span></router-link>
-        <router-link class="btn btn-info" to="/register">Register<span class="sr-only">(current)</span></router-link>
-      </div>
+        <router-link class="btn btn-primary" to="/register">Register<span class="sr-only">(current)</span></router-link>
+        <router-link class="btn btn-info " to="/login">Login<span class="sr-only">(current)</span></router-link>
+
+        </div>
       <div class="home-col-2">
-        <img src="static/imgs/covercar.png"> 
+        <img id="homepic" src="static/imgs/covercar.png"> 
       </div>
   </div>
   `,
