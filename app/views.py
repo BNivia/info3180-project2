@@ -4,14 +4,32 @@ Jinja2 Documentation:    http://jinja.pocoo.org/2/documentation/
 Werkzeug Documentation:  http://werkzeug.pocoo.org/documentation/
 This file creates your application.
 """
-import os, jwt
+import os, jwt, datetime
 from app import app, db, login_manager
-from flask import render_template, request, session, jsonify, send_from_directory
+from flask import render_template, request, jsonify, send_from_directory
 from flask_login import login_user, logout_user, current_user, login_required
 from .forms import *
 from .models import *
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
+
+
+###
+# Auxiliary Functions
+###
+
+def decodetoken(token):
+    try:
+        jwt_payload = jwt.decode(token, app.config['SECRET_KEY'])
+        return jwt_payload
+    except jwt.ExpiredSignatureError:
+        return 'EXPIRED'
+    except jwt.InvalidTokenError:
+        return 'INVALID'
+
+# def checktoken(user, jwt_token):
+#     result = decodetoken(jwt_token)
+#     if 
 
 ###
 # Routing for your application.
@@ -78,7 +96,11 @@ def login():
                 loginmsg={ "error_message" : "User not found!" }
             elif (check_password_hash(result.password, password)):
                 login_user(result)
-                jwt_payload = { "username": result.username, "password": result.password}
+                jwt_payload = { "username": result.username, \
+                                "password": result.password, \
+                                'exp': datetime.datetime.now(tz=timezone('EST')) + datetime.timedelta(days=0, seconds=5),
+                                'iat': datetime.datetime.now(tz=timezone('EST'))
+                            }
                 jwt_token = jwt.encode(jwt_payload, app.config['SECRET_KEY'], algorithm="HS256")
                 loginmsg = { "message" : "Login successful!" , "token" : jwt_token, "user_id": result.uid}
             else:

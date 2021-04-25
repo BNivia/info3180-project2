@@ -57,7 +57,7 @@ class Users(db.Model):
         self.location = location
         self.biography = biography
         self.photo = photo 
-        self.date_joined = datetime.now(timezone("EST"))
+        self.date_joined = datetime.now(tz=timezone("EST"))
 
     def is_authenticated(self):
         return True
