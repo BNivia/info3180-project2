@@ -226,21 +226,19 @@ def search():
 @app.route('/api/users/<int:user_id>', methods=['GET'])
 @login_required
 def getuser(user_id):
-    print(current_user.uid)
     if request.method == 'GET':
         result = db.session.query(Users).filter_by(uid=user_id).first()
         if result == [] or result == None:
             return jsonify({"error_message": "User cannot be found."})
         else:
-            for user in result:
-                info = {"id":user.user_id,\
-                    "username": user.username,\
-                        "name": user.name,\
-                            "photo": user.photo,\
-                                "email": user.email,\
-                                    "location": user.location,\
-                                        "biography": user.biography,\
-                                            "date_joined": user.date_joined}
+            info = {"id": result.uid,\
+                "username": result.username,\
+                    "name": result.name,\
+                        "photo": '/uploads/' + result.photo,\
+                            "email": result.email,\
+                                "location": result.location,\
+                                    "biography": result.biography,\
+                                        "date_joined": result.date_joined}
             return jsonify({"data": info})
     return jsonify({'error_message': 'Method Not Allowed'})
         

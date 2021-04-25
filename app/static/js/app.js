@@ -1,7 +1,6 @@
-// Global Variables Space
-var jwt_token; 
+var jwt_token;
 var global_user_id;
-// 
+
 
 const app = Vue.createApp({
   data() {
@@ -9,6 +8,9 @@ const app = Vue.createApp({
       }
   }
 });
+
+app.config.globalProperties.$jwt_token = null;
+app.config.globalProperties.$global_user_id = null;
 
 app.component('app-header', {
   name: 'AppHeader',
@@ -41,23 +43,30 @@ app.component('app-header', {
           <router-link class="nav-link" to="/explore">Explore<span class="sr-only">(current)</span></router-link>
         </li>
         <li class="nav-item active">
-          <router-link class="nav-link" v-on:click="gotoUser()" to="">View Profile<span class="sr-only">(current)</span></router-link>
+          <router-link class="nav-link" v-on:click="gotoUser(currentuser)" to="">View Profile<span class="sr-only">(current)</span></router-link>
         </li>
       </ul>
     </div>
   </nav>
   `,
-  methods: {
-    logout(){},//lol ah bouta shub
-    gotoUser(){ //MARKED user Profile, lol Jantae =( fix this nuh Saturday man
-      let router = this.$router;
-      console.log(this.global_user_id)
-      // router.push(`/users/${this.global_user_id}`);
+  data() {
+    return { 
+        currentuser: this.$global_user_id,//this a problem
+    }
   },
-  }
+  methods: {
+    logout(){},
+    gotoUser(num){ //MARKED , it woulda funny bad
+      let router = this.$router; //try naomi WOOIIIEEEE IT WRK just the pic 
+      let user = JSON.parse(localStorage.getItem('user'));
+      //it used to be Island Grill in the past where then? Popeyes fries nice | AYYYEEEEEE JAAANNNNNNN
+      router.push(`/users/${user.id}`);//lol ah so Matthew is Popeyes fries love dat. Ah wah next now lol lol lemme push
+      // router.push(`/users/${this.global_user_id}`);  
+  },//null
+  } 
 });
 
-app.component('app-footer', {
+app.component('app-footer', { //
   name: 'AppFooter',
   template: `
   <footer>
@@ -149,9 +158,11 @@ const loginForm = {
                 // Other error unrelated to form
               }else if('message' in jsonResponse){
                 //Suceessss
+                localStorage.setItem('user', JSON.stringify({"token": jsonResponse.token, "id": jsonResponse.user_id}))
                 jwt_token = jsonResponse.token;
+                this.$jwt_token = jsonResponse.token;
                 global_user_id = jsonResponse.user_id;
-                console.log(global_user_id)
+                this.$global_user_id = jsonResponse.user_id;
                 router.push('/cars/new')
               }  
           }) 
@@ -526,7 +537,9 @@ const getACar = {
 const getUser = {
   name: 'getUser',
   template: `
-    <br><br>
+    <br>
+    <button v-on:click="goBack" class="btn btn-primary">Go Back to Explore</button>
+    <br>
     <div class="card" v-if="user != {}">
         <img class ="" v-bind:src=user.photo > 
         <div class = "card-body sincar" id = "{{user.id}}">
@@ -551,8 +564,6 @@ const getUser = {
           </div>
         </div>
     </div>
-
-    <button v-on:click="goBack" class="btn btn-primary btn-block">Go Back to Explore</button>
   `,
   data() {
       return {
@@ -562,8 +573,9 @@ const getUser = {
   created(){
       let self = this;
       let route = this.$route;
+      let id = route.params.user_id;
 
-      fetch(`/api/users/${global_user_id}`,{
+      fetch(`/api/users/${id}`,{
           method:'GET',
           headers:{
               'X-CSRFToken': token,
@@ -582,6 +594,7 @@ const getUser = {
             // Other error unrelated to form
           }else if('data' in jsonResponse){
             self.user = jsonResponse.data;
+            // console.log(self.user)
           }  
       })
       .catch (function(error){
