@@ -43,26 +43,19 @@ app.component('app-header', {
           <router-link class="nav-link" to="/explore">Explore<span class="sr-only">(current)</span></router-link>
         </li>
         <li class="nav-item active">
-          <router-link class="nav-link" v-on:click="gotoUser(currentuser)" to="">View Profile<span class="sr-only">(current)</span></router-link>
+          <router-link class="nav-link" v-on:click="gotoUser()" to="">View Profile<span class="sr-only">(current)</span></router-link>
         </li>
       </ul>
     </div>
   </nav>
   `,
-  data() {
-    return { 
-        currentuser: this.$global_user_id,//this a problem
-    }
-  },
   methods: {
     logout(){},
-    gotoUser(num){ //MARKED , it woulda funny bad
-      let router = this.$router; //try naomi WOOIIIEEEE IT WRK just the pic 
+    gotoUser(){ 
+      let router = this.$router; 
       let user = JSON.parse(localStorage.getItem('user'));
-      //it used to be Island Grill in the past where then? Popeyes fries nice | AYYYEEEEEE JAAANNNNNNN
-      router.push(`/users/${user.id}`);//lol ah so Matthew is Popeyes fries love dat. Ah wah next now lol lol lemme push
-      // router.push(`/users/${this.global_user_id}`);  
-  },//null
+      router.push(`/users/${user.id}`);
+  },
   } 
 });
 
