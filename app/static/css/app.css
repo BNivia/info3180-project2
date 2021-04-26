@@ -2,6 +2,21 @@ body {
     padding-top: 50px;
 }
 
+.navbar{
+    background-color: #202938;
+    color: #fff;
+}
+
+.btn-us{
+    background-color: #14B7A6;
+    color: #fff;
+}
+
+.btn-us:hover{
+    color: #fff;
+    background-color:#0f8d80;
+}
+
 .card-set{
     margin: 2rem auto;
     display: grid;
@@ -18,22 +33,22 @@ body {
     width: 50%;
 }
 
-.home{
+.home, .prof{
     display: flex;
     width: 100%;
 }
 
-.home-col-1{
+.home-col-1,.prof-col-1{
     float: left;
     width: 50%;
-    padding: 10%;
+    padding: 10% 8%;
 }
 
-.home-col-1 h1{
+.home- col-1 h1{
     text-decoration: solid;
 }
 
-.home-col-2{
+.home-col-2,.prof-col-2{
     float: right;
     width: 50%;
     
@@ -44,7 +59,158 @@ body {
     
 }
 
-.btn {
+.btn-home {
     margin-right: 10px;
     width: 150px;
+    padding-right:1rem;
+}
+
+.size{
+    width: 40%;
+    box-shadow: 0 .5rem .5rem rgba(0,0,0,.075);
+}
+
+.size-2{
+    width: 70%;
+    border-radius: 8px;
+}
+
+.sh{
+    box-shadow: 0 .5rem .5rem rgba(0,0,0,.075);
+}
+
+.us{
+    padding-top: 6rem;
+}
+
+.display-5{
+    font-size: 2rem;
+    font-weight: 900;
+    padding-bottom: 1rem;
+}
+
+.display-6{
+    font-size: 2rem;
+    font-weight: 900;
+    padding-bottom: .25rem;
+}
+
+.btn-r{
+    border-radius: 10px;
+}
+
+.shift{
+    margin-left: 10.5rem;
+    padding-top: 1rem;
+}
+
+textarea{
+    resize: none;
+    height: 10rem;
+}
+
+.s-card{
+    box-shadow: 0 .5rem .5rem rgba(0,0,0,.075);
+}
+
+.btn-search{
+    height: 20%;
+    margin-top: 2rem;
+    margin-left: 1rem;
+}
+
+.card-footer {
+  padding: 0.75rem 1.25rem;
+  background-color: #fff;
+  border-top: 1px solid #fff;
+}
+
+.card-title-2{
+    margin-bottom: 0.5rem;
+    flex-direction: row;
+}
+
+.price{
+    background-color:#14B7A6;
+    border-radius: 6px;
+    color: #fff;
+    text-align: center;
+    padding: 0.25rem;
+    width: 45%;
+    margin-left: 0.35rem;
+    font-size: 14px;
+}
+
+.img2{
+    border-radius: 70%;
+    height: 200px;
+    width: 200px;
+}
+
+.img3{
+    height: 50%;
+}
+
+select{
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right .75rem center;
+    background-size: 16px 12px;
+}
+
+.c-font{
+    font-weight: 600;
+}
+
+.fs-1{
+    font-size: 40px;
+}
+
+.heart{
+    border-radius: 50%;
+    border: 1.5px solid #d8d4d4;
+    height: 40px;
+    width: 40px;
+    background-color: white;
+}
+
+.heart:hover{
+    background-color: #d8d4d4;
+    cursor: pointer;
+}
+
+.heart svg{
+    margin-top: 35%;
+    fill: rgb(214, 87, 87);
+}
+
+.full{
+    background-color:  rgb(214, 87, 87);
+}
+
+.heart:hover{
+    opacity: 75%;
+}
+
+.full svg{
+    fill: white;
+}
+
+.nh{
+    height: 100%;
+}
+
+.u-data{
+    text-align:left;
+    padding-left: .6rem;
+}
+
+.m-grey{
+    color: grey;
+}
+
+#logoutpic{
+    width: 70%;
+    height: 70%;
 }

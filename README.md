@@ -2,10 +2,15 @@
 
 ## Group Members
 
--Jantae Leckie : THEE SPARX
--Matthew Palmer : SUPER MASSIVE GENIUS
--Danielle Mullings : LA PRESIDENTE
--Naomi Benjamin : UNIVERSE STAR
+- Jantae Leckie 
+- Matthew Palmer 
+- Danielle Mullings 
+- Naomi Benjamin 
+
+---
+
+##Heroku App
+
 
 ---
 

@@ -4,7 +4,7 @@ Jinja2 Documentation:    http://jinja.pocoo.org/2/documentation/
 Werkzeug Documentation:  http://werkzeug.pocoo.org/documentation/
 This file creates your application.
 """
-import os, jwt, datetime
+import os, jwt
 from app import app, db, login_manager
 from flask import render_template, request, jsonify, send_from_directory
 from flask_login import login_user, logout_user, current_user, login_required
@@ -12,6 +12,8 @@ from .forms import *
 from .models import *
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime, timedelta
+from pytz import timezone
 
 
 ###
@@ -20,16 +22,36 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 def decodetoken(token):
     try:
-        jwt_payload = jwt.decode(token, app.config['SECRET_KEY'])
+        jwt_payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
         return jwt_payload
-    except jwt.ExpiredSignatureError:
+    except jwt.ExpiredSignatureError: 
         return 'EXPIRED'
-    except jwt.InvalidTokenError:
+    except jwt.InvalidTokenError: 
         return 'INVALID'
 
-# def checktoken(user, jwt_token):
-#     result = decodetoken(jwt_token)
-#     if 
+def checktoken(user, jwt_token):
+    result = decodetoken(jwt_token)
+    if result == 'EXPIRED' or result == 'INVALID':
+        return 'Invalid token. Please login in again'
+    elif type(result) == dict:
+        username = result.get('username')
+        if username == user.username:
+            return 'OK'
+        else:
+            return 'Invalid token. Please login in again'
+    else:
+        return 'Invalid token. Please login in again'
+
+def tvalidate():
+    token = request.headers.get('Authorization')
+    if token == None:
+        return jsonify({'error_message': 'Invalid Credentials'})
+    else:
+        token = token.split()[1]
+        value = checktoken(current_user, token)
+        if value != 'OK': 
+            return jsonify({'error_message': value })
+        return 'OK'
 
 ###
 # Routing for your application.
@@ -96,10 +118,9 @@ def login():
                 loginmsg={ "error_message" : "User not found!" }
             elif (check_password_hash(result.password, password)):
                 login_user(result)
-                jwt_payload = { "username": result.username, \
-                                "password": result.password, \
-                                'exp': datetime.datetime.now(tz=timezone('EST')) + datetime.timedelta(days=0, seconds=5),
-                                'iat': datetime.datetime.now(tz=timezone('EST'))
+                jwt_payload = { 'username': result.username, \
+                                'exp': datetime.now(tz=timezone('EST')) + timedelta(minutes=20),
+                                'iat': datetime.now(tz=timezone('EST')) \
                             }
                 jwt_token = jwt.encode(jwt_payload, app.config['SECRET_KEY'], algorithm="HS256")
                 loginmsg = { "message" : "Login successful!" , "token" : jwt_token, "user_id": result.uid}
@@ -120,11 +141,14 @@ def logout():
 @login_required
 def getcars():
     if request.method == 'GET':
+        val = tvalidate()
+        if val != 'OK':
+            return val
         result = db.session.query(Cars).order_by(Cars.cid.desc()).limit(3).all()
         if result == []:
             return jsonify({"error_message": "No Cars Available."})
         else:
-            cars = [] #me nuh see tht kmt
+            cars = []
             for car in result:
                 cars.append({"cid": car.cid,\
                     "description": car.description,\
@@ -146,6 +170,9 @@ def addcars():
     form = AddCarForm()
     if request.method == 'POST':
         if form.validate_on_submit():
+            val = tvalidate()
+            if val != 'OK':
+                return val
             description = form.description.data
             make = form.make.data
             model = form.model.data
@@ -173,7 +200,7 @@ def addcars():
                                             "price": price,\
                                                 "photo": filename,\
                                                     "user_id": user_id})
-        return jsonify(form_errors(form))
+        return jsonify({"errors": form_errors(form)})#it good now imma try add again
     return jsonify({'error_message': 'Method Not Allowed'})
 
         
@@ -181,10 +208,19 @@ def addcars():
 @login_required
 def getacar(car_id):
     if request.method == 'GET':
+        val = tvalidate()
+        if val != 'OK':
+            return val
         result = db.session.query(Cars).filter_by(cid=car_id).first()
         if result == [] or result == None:
             return jsonify({"error_message": "Car could not be located."})
         else:
+            uid = current_user.uid
+            check = db.session.query(Favourites).filter(Favourites.user_id == uid, Favourites.car_id == car_id).first()
+            if check == None:
+                isFav = False
+            else:
+                isFav = True
             car = {"cid": result.cid,\
                     "description": result.description,\
                         "year": result.year,\
@@ -195,20 +231,24 @@ def getacar(car_id):
                                             "car_type": result.car_type,\
                                                 "price": result.price,\
                                                     "photo": "/uploads/" + result.photo,\
-                                                        "user_id": result.user_id}
+                                                        "user_id": result.user_id, \
+                                                            "favourite": isFav}
             return jsonify({"data": car})
     return jsonify({'error_message': 'Method Not Allowed'})
 
 @app.route('/api/cars/<int:car_id>/favourite', methods=['POST'])
 @login_required  
 def addfav(car_id):
-    if request.method == 'POST': 
+    if request.method == 'POST':
+        val = tvalidate()
+        if val != 'OK':
+            return val
         uid = current_user.uid
         result = db.session.query(Favourites).filter(Favourites.user_id == uid, Favourites.car_id == car_id).first()
         if result != None: 
             test = {"fav_id": result.fid}
             return jsonify({"data": test})
-        else: #working now
+        else:
             fav = Favourites(car_id, uid)
             db.session.add(fav) 
             db.session.commit()
@@ -217,10 +257,30 @@ def addfav(car_id):
             return jsonify({"data": test})
     return jsonify({'error_message': 'Method Not Allowed'})
 
+@app.route('/api/cars/<int:car_id>/unfavourite', methods=['POST'])
+@login_required  
+def removefav(car_id):
+    if request.method == 'POST':
+        val = tvalidate()
+        if val != 'OK':
+            return val
+        uid = current_user.uid
+        result = db.session.query(Favourites).filter(Favourites.user_id == uid, Favourites.car_id == car_id).first()
+        if result == None:
+            return jsonify({'error_message': 'It has not been favourited'})
+        else:
+            db.session.delete(result) 
+            db.session.commit()
+            return jsonify({"message": "Successfully Removed from Favourites"})
+    return jsonify({'error_message': 'Method Not Allowed'})
+
 @app.route('/api/search', methods=['GET'])
 @login_required
 def search():
     if request.method == 'GET':
+        val = tvalidate()
+        if val != 'OK':
+            return val
         make = request.args.get('make')
         model = request.args.get('model')
         if make == None and model == None:
@@ -256,6 +316,9 @@ def search():
 @login_required
 def getuser(user_id):
     if request.method == 'GET':
+        val = tvalidate()
+        if val != 'OK':
+            return val
         result = db.session.query(Users).filter_by(uid=user_id).first()
         if result == [] or result == None:
             return jsonify({"error_message": "User cannot be found."})
@@ -277,6 +340,9 @@ def getuser(user_id):
 @login_required
 def getfavs(user_id):
     if request.method == 'GET':
+        val = tvalidate()
+        if val != 'OK':
+            return val
         result = db.session.query(Favourites).filter(Favourites.user_id ==user_id).all()
         if result == [] or result == None:
             return jsonify({"error_message": "User has no favourites."})
@@ -284,7 +350,7 @@ def getfavs(user_id):
             favs = []
             for fav in result:
                 afav = db.session.query(Cars).filter(Cars.cid==fav.car_id).first()
-                favs.append({"id": afav.cid,\
+                favs.append({"cid": afav.cid,\
                     "description": afav.description,\
                         "year": afav.year,\
                             "make": afav.make,\

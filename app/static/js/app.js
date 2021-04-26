@@ -1,16 +1,13 @@
-
 const app = Vue.createApp({
   data() {
-      return {
-        
-      }
+      return {}
   }
 });
 
 app.component('app-header', {
   name: 'AppHeader',
   template: `
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <a class="navbar-brand" href="#">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-truck" viewBox="0 0 16 16">
             <path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
@@ -50,10 +47,10 @@ app.component('app-header', {
     </div>
   </nav>
   `,
-  data(){ //v-on:click.prevent="logout()"
+  data(){
     return {
         stat: false,
-    } //nah idu lol. As i said it works on refresh idu why it needs to but yh i konfuse
+    }
   },
   mounted(){
     setInterval(() => {
@@ -62,13 +59,8 @@ app.component('app-header', {
       } else {
         this.stat = false;
       }
-    }, 100) // bandage up time, bandage upped
+    }, 100) 
   },
-  // computed: {
-  //   stat: () =>{
-      
-  //   }
-  // },
   methods: {
     gotoUser(){ 
       let router = this.$router; 
@@ -78,21 +70,6 @@ app.component('app-header', {
   } 
 });
 
-app.component('app-footer', {
-  name: 'AppFooter',
-  template: `
-  <footer>
-      <div class="container">
-          <p>Copyright &copy; {{ year }} Flask Inc.</p>
-      </div>
-  </footer>
-  `,
-  data() {
-      return {
-          year: (new Date).getFullYear()
-      }
-  }
-});
 
 const Home = {
   name: 'Home',
@@ -100,10 +77,10 @@ const Home = {
   <div class="home">
       <br>
       <div class="home-col-1">
-        <h1>Buy and Sell Cars Online</h1>
+        <h1 class="display-4 c-font">Buy and Sell Cars Online</h1>
         <p>United Auto Sales Provides the fastest, easiest and most user friendly way to buy or sell cars online. Find a Great Price on the Vehicle You Want</p>
-        <router-link class="btn btn-primary" to="/register">Register<span class="sr-only">(current)</span></router-link>
-        <router-link class="btn btn-info " to="/login">Login<span class="sr-only">(current)</span></router-link>
+        <router-link class="btn btn-primary btn-home" to="/register">Register<span class="sr-only">(current)</span></router-link>
+        <router-link class="btn btn-us btn-home" to="/login">Login<span class="sr-only">(current)</span></router-link>
 
         </div>
       <div class="home-col-2">
@@ -131,24 +108,43 @@ const NotFound = {
 const loginForm = {
   name: 'login-form',
   template: `
-  <h1>Login Form</h1>
-  <form id="loginForm" enctype="multipart/form-data" @submit.prevent="login" method="POST">
-      <div>
-          <label for="username">Username</label>
-          <input type="text" name="username" class="form-control">
-          <label for="password">Password</label>
-          <input type="password" name="password" class="form-control">
-          <br>
-          <button type="submit" class="btn btn-primary">Submit</button>
-      </div>
-  </form>
+  <br>
+  <section class="us">
+    <h3 class="text-center display-5">Login to your account</h3>
+    <div class="form-group mx-auto card size p-3 bg-white">
+      <form class="card-body" id="loginForm" enctype="multipart/form-data" @submit.prevent="login" method="POST">
+        <div class="alert alert-success" role="alert" v-if="on && success" v-for="message in messages">
+          {{message}}
+        </div>
+        <div class="alert alert-danger" role="alert"  v-if="on && !success" >
+            <div v-for="message in messages">
+                <li> {{message}}</li>
+            </div>
+        </div>
+        <div class="c-font">
+            <label for="username">Username</label>
+            <input type="text" name="username" class="btn-r form-control">
+            <br>
+            <label for="password">Password</label>
+            <input type="password" name="password" class="btn-r form-control">
+            <br>
+            <button type="submit" class="btn btn-block btn-us btn-r">Login</button>
+        </div>
+      </form>
+    </div>
+  </section>
   `,
   data()
   {
-      return {}
+      return {
+        on: false,
+        success: false,
+        messages: []
+      }
   },
   methods:{
       login(){
+          let self = this;
           let router = this.$router;
           let loginForm = document.getElementById('loginForm');
           let form_data = new FormData(loginForm);
@@ -165,16 +161,28 @@ const loginForm = {
               return response.json();
           })
           .then(function (jsonResponse) {
-              // display a success message
-              console.log(jsonResponse);
               if('errors' in jsonResponse){
-                //Form errrors
+                self.messages = []
+                for (e in jsonResponse.errors){
+                    self.messages.push(jsonResponse.errors[e]);
+                }
+                self.on = true;
+                self.success = false;
               }else if('error_message' in jsonResponse){
-                // Other error unrelated to form
+                self.messages = []
+                self.messages.push(jsonResponse.error_message);
+                self.on = true;
+                self.success = false;
               }else if('message' in jsonResponse){
+                self.messages = []
+                self.messages.push(jsonResponse.message);
+                self.on = true;
+                self.success = true;
                 localStorage.setItem('user', JSON.stringify({"token": jsonResponse.token, "id": jsonResponse.user_id}));
-                router.push('/explore')
-              }  
+                setTimeout(() => {
+                  router.push('/explore')
+                }, 1300);                 
+              }
           }) 
           .catch (function(error){
               console.log(error);
@@ -186,24 +194,38 @@ const loginForm = {
 const signupForm = {
   name: 'sigup-form',
   template: `
-  <br><h1>Sigup Form</h1><br>
-  <form id="sigupForm" enctype="multipart/form-data" @submit.prevent="signup" method="POST">
-      <div>
-        <div class="form-group"> 
+  <br>
+  <h1 class="display-5 shift">Register New User</h1>
+  <div class="form-group mx-auto card size size-2 p-4 bg-white">
+    <form id="sigupForm" enctype="multipart/form-data" @submit.prevent="signup" method="POST">
+      <div class="alert alert-success" role="alert" v-if="on && success" v-for="message in messages">
+        {{message}}
+      </div>
+      <div class="alert alert-danger" role="alert"  v-if="on && !success" >
+          <div v-for="message in messages">
+              <li> {{message}}</li>
+          </div>
+      </div>
+      <div class="c-font">
+        <div class="form-row">
+          <div class="form-group col-md-6"> 
             <label for="username">Username</label>
             <input type="text" name="username" class="form-control">
+          </div>
+          <div class="form-group col-md-6">
+              <label for="password">Password</label>
+              <input type="password" name="password" class="form-control">
+          </div>
         </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" name="password" class="form-control">
-        </div>
-        <div class="form-group">
+        <div class="form-row">
+          <div class="form-group col-md-6">
             <label for="name">Full Name</label>
             <input type="text" name="name" class="form-control">
-        </div>
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="text" name="email" class="form-control">
+          </div>
+          <div class="form-group col-md-6">
+              <label for="email">Email</label>
+              <input type="text" name="email" class="form-control">
+          </div>
         </div>
         <div class="form-group">
             <label for="location">Location</label>
@@ -211,19 +233,24 @@ const signupForm = {
         </div>
         <div class="form-group">
             <label for="biography">Biography</label>
-            <input type="textArea" name="biography" class="form-control">
+            <textarea type="textarea" name="biography" class="form-control"></textarea>
         </div>
         <div class="form-group">
-            <label for="photo">Photo</label>
+            <label for="photo">Upload Photo</label>
             <input type="file" name="photo" class="form-control-file">
         </div><br>
 
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-us btn-r pr-4 pl-4">Register</button>
       </div>
-  </form> 
+    </form> 
+  </div>
   `,
   data() {
-      return {}
+      return {
+        on: false,
+        success: false,
+        messages: []
+      }
   },
   methods:{
       signup(){
@@ -243,14 +270,22 @@ const signupForm = {
               return response.json();
           })
           .then(function (jsonResponse) {
-              // display a success message
-              console.log(jsonResponse);
               if('errors' in jsonResponse){
-                //Form errrors
+                self.messages = []
+                for (e in jsonResponse.errors){
+                    self.messages.push(jsonResponse.errors[e]);
+                }
+                self.on = true;
+                self.success = false;
               }else if('error_message' in jsonResponse){
-                // Other error unrelated to form
+                self.messages = []
+                self.messages.push(jsonResponse.error_message);
+                self.on = true;
+                self.success = false;
               }else if('message' in jsonResponse){
-                //Success
+                self.messages = [];
+                self.on = false;
+                self.success = false;
                 router.push('/login');
               }  
           })
@@ -265,68 +300,89 @@ const signupForm = {
 const addCarForm = {
   name: 'addCar-form',
   template: `
-  <br><h1>New Car Form</h1><br>
-  <form id="addCarForm" enctype="multipart/form-data" @submit.prevent="addcar" method="POST">
-      <div>
-        <div class="form-group">
-            <label for="make">Make</label>
-            <input type="text" name="make" class="form-control">
+    <br><h1 class="display-5 shift">Add New Car</h1>
+    <div class="form-group mx-auto card size size-2 p-4 bg-white">
+      <form id="addCarForm" enctype="multipart/form-data" @submit.prevent="addcar" method="POST">
+        <div class="alert alert-success" role="alert" v-if="on && success" v-for="message in messages">
+          {{message}}
         </div>
-        <div class="form-group">
-            <label for="model">Model</label>
-            <input type="text" name="model" class="form-control">
+        <div class="alert alert-danger" role="alert"  v-if="on && !success" >
+            <div v-for="message in messages">
+                <li> {{message}}</li>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="colour">Colour</label>
-            <input type="text" name="colour" class="form-control">
-        </div>
-        <div class="form-group">
-            <label for="year">Year</label>
-            <input type="text" name="year" class="form-control">
-        </div>
-        <div class="form-group">
-            <label for="price">price</label>
-            <input type="float" name="price" class="form-control">
-        </div>
-        <div class="form-group">
-            <label for="car_type">Car Type</label>
-            <select name="car_type" id="car_type" class="form-select">
-                <option value="Convertable">Convertable</option>
-                <option value="Coupe">Coupe</option>
-                <option value="Hatchback">Hatchback</option>
-                <option value="Minivan">Minivan</option>
-                <option value="Pickup Truck">Pickup Truck</option>
-                <option value="Sedan">Sedan</option>
-                <option value="Sports Car">Sports Car</option>
-                <option value="Station Wagon">Station Wagon</option>
-                <option value="SUV">SUV</option>
-            </select><br>
-        </div>
-        <div class="form-group">
-            <label for="transmission">Transmission</label>
-            <select name="transmission" id="transmission" class="form-select">
-                <option value="Automatic">Automatic</option>
-                <option value="Manual">Manual</option>
-            </select><br>
-        </div>
-        <div class="form-group">
-            <label for="description">Description</label>
-            <input type="textArea" name="description" class="form-control">
-        </div>
-        <div class="form-group">
-            <label for="photo">Photo</label>
-            <input type="file" name="photo" class="form-control-file">
-        </div><br>
+        <div class="c-font">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="make">Make</label>
+              <input type="text" name="make" class="form-control">
+            </div>
+            <div class="form-group col-md-6">
+                <label for="model">Model</label>
+                <input type="text" name="model" class="form-control">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="colour">Colour</label>
+              <input type="text" name="colour" class="form-control">
+            </div> 
+            <div class="form-group col-md-6"> 
+                <label for="year">Year</label>
+                <input type="text" name="year" class="form-control">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="price">Price</label>
+              <input type="float" name="price" class="form-control">
+            </div>
+            <div class="form-group col-md-6">
+                <label for="car_type">Car Type</label>
+                <select name="car_type" id="car_type" class="form-control form-select">
+                    <option value="Convertable">Convertable</option>
+                    <option value="Coupe">Coupe</option>
+                    <option value="Hatchback">Hatchback</option>
+                    <option value="Minivan">Minivan</option>
+                    <option value="Pickup Truck">Pickup Truck</option>
+                    <option value="Sedan">Sedan</option>
+                    <option value="Sports Car">Sports Car</option>
+                    <option value="Station Wagon">Station Wagon</option>
+                    <option value="SUV">SUV</option>
+                </select>
+            </div>
+          </div>
+          <div class="form-group">
+              <label for="transmission">Transmission</label>
+              <select name="transmission" id="transmission" class="form-control form-select">
+                  <option value="Automatic">Automatic</option>
+                  <option value="Manual">Manual</option>
+              </select>
+          </div>
+          <div class="form-group">
+              <label for="description">Description</label>
+              <textarea type="textArea" name="description" class="form-control"></textarea>
+          </div>
+          <div class="form-group">
+              <label for="photo">Upload Photo</label>
+              <input type="file" name="photo" class="form-control-file">
+          </div><br>
 
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </div>
-  </form> 
+          <button type="submit" class="btn btn-us btn-r pr-5 pl-5">Save</button>
+        </div>
+      </form>
+    </div> 
   `,
   data() {
-      return {}
+      return {
+        on: false,
+        success: false,
+        messages: []
+      }
   },
   methods:{
-      addcar(){ 
+      addcar(){
+          let self = this;
           let form = document.forms[0];
           let form_data = new FormData(form);
           let user = JSON.parse(localStorage.getItem('user'));
@@ -345,14 +401,27 @@ const addCarForm = {
               return response.json();
           })
           .then(function (jsonResponse) {
-              // display a success message
               console.log(jsonResponse);
               if('errors' in jsonResponse){
-                //Form errrors
+                self.messages = []
+                for (e in jsonResponse.errors){
+                    self.messages.push(jsonResponse.errors[e]);
+                }
+                self.on = true;
+                self.success = false;
               }else if('error_message' in jsonResponse){
-                // Other error unrelated to form
-              }else if('message' in jsonResponse){
-                //Suceessss
+                self.messages = []
+                self.messages.push(jsonResponse.error_message);
+                self.on = true;
+                self.success = false;
+              }else if('description' in jsonResponse){
+                self.messages = []
+                self.messages.push("Successfully Added");
+                self.on = true;
+                self.success = true;
+                setTimeout(() => {
+                  router.push('/explore')
+                }, 1300);         
               }  
           })
           .catch (function(error){
@@ -365,32 +434,47 @@ const addCarForm = {
 const getCars = {
   name: 'getCars',
   template: `
-  <br><h1>Explore</h1>
-  <div class="form-group">
-    <label for="search">Make</label>     
-    <input type="search" name="search" v-model="make" id="make" class="form-control mb-2 mr-sm-2"/>
+  <br><h1 class="display-5">Explore</h1>
+  <div class="alert alert-success" role="alert" v-if="on && success" v-for="message in messages">
+    {{message}}
   </div>
-  <div class="form-group">
-    <label for="search">Model</label> 
-    <input type="search" name="search" v-model="model" id="model" class="form-control mb-2 mr-sm-2"/> 
+  <div class="alert alert-danger" role="alert"  v-if="on && !success && messages.length > 0" >
+      <div v-for="message in messages">
+          <li> {{message}}</li>
+      </div>
   </div>
-  <button class="btn btn-primary mb-2" @click="search">Search</button>
+  <div class="card s-card sh">
+    <div class="form-row card-body">
+      <div class="form-group col-md-5">
+        <label for="search">Make</label>     
+        <input type="search" name="search" v-model="make" id="make" class="form-control mb-2 mr-sm-2"/>
+      </div>
+      <div class="form-group col-md-5">
+        <label for="search">Model</label> 
+        <input type="search" name="search" v-model="model" id="model" class="form-control mb-2 mr-sm-2"/> 
+      </div>
+      <button class="btn btn-us btn-r col-md-1 form-group btn-search" @click="search">Search</button>
+    </div>
+    
+  </div>
   <div class = "card-set">
     <div class = "cars card" v-for="car in cars">
-        <img class ="card-img-top" v-bind:src=car.photo > 
+        <img class ="card-img-top img3" v-bind:src=car.photo > 
         <div class = "card-body sincar" id = "{{car.cid}}">
-            <div class="card-title">
-                <h3>{{car.year}} {{car.make}}</h3>
+            <div class="card-title-2 form-inline">
+                <h5 class="year">{{car.year}} {{car.make}}</h5>
                 <p class="price">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tag" viewBox="0 0 16 16">
-                        <path d="M6 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm-1 0a.5.5 0 1 0-1 0 .5.5 0 0 0 1 0z"/>
-                        <path d="M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1zm0 5.586 7 7L13.586 9l-7-7H2v4.586z"/>
-                    </svg>
-                    {{car.price}}
+                          <path d="M6 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm-1 0a.5.5 0 1 0-1 0 .5.5 0 0 0 1 0z"/>
+                          <path d="M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1zm0 5.586 7 7L13.586 9l-7-7H2v4.586z"/>
+                      </svg>
+                    $ {{car.price}}
                 </p>
             </div>
-            <p class="model card-subtitle text-muted">{{car.model}}</p> 
-            <button v-on:click="gotoCar(car.cid)" class="btn btn-primary btn-block">View Details</button>
+            <p class="model card-subtitle text-muted">{{car.model}}</p>             
+        </div>
+        <div class="card-footer">
+          <button v-on:click="gotoCar(car.cid)" class="btn btn-primary btn-block">View more details</button>
         </div>
     </div>
   </div>
@@ -401,9 +485,12 @@ const getCars = {
         cars: [],
         make: '',
         model: '',
+        on: false,
+        success: false,
+        messages: []
       }
   },
-  created(){
+  mounted(){
     let self = this;
     let user = JSON.parse(localStorage.getItem('user'));
     let jwt_token = user.token;
@@ -419,13 +506,34 @@ const getCars = {
         return response.json();
     })
     .then(function (jsonResponse) {
-        // display a success message
-        console.log(jsonResponse);
         if('errors' in jsonResponse){
-        }else if('error_message' in jsonResponse){
+                self.messages = []
+                for (e in jsonResponse.errors){
+                    self.messages.push(jsonResponse.errors[e]);
+                }
+                self.on = true;
+                self.success = false;
+          }
+        else if('error_message' in jsonResponse){
+          if(jsonResponse.error_message == 'Invalid token. Please login in again' || jsonResponse.error_message == 'Invalid Credentials'){
+            self.messages = []
+            self.messages.push(jsonResponse.error_message);
+            self.on = true;
+            self.success = false;
+            setTimeout(() => {
+              router.push('/logout')
+            }, 1500);
+          }else{
+            self.messages = []
+            self.messages.push(jsonResponse.error_message);
+            self.on = true;
+            self.success = false;
+          }
         }else if('data' in jsonResponse){
+          self.messages = [];
+          self.on = false;
+          self.success = false;
           self.cars = jsonResponse.data;  
-          console.log(jsonResponse.data)
         }  
     })
     .catch (function(error){
@@ -433,38 +541,6 @@ const getCars = {
     })
   },
   methods:{ 
-      getcars(){ 
-         let user = JSON.parse(localStorage.getItem('user'));
-         let jwt_token = user.token;
-         
-        
-          fetch('/api/cars',{
-              method:'GET',
-              headers:{
-                  'X-CSRFToken': token,
-                  'Authorization': `Bearer ${jwt_token}`
-              },
-              credentials: 'same-origin'
-          })
-          .then(function (response) {
-              return response.json();
-          })
-          .then(function (jsonResponse) {
-              // display a success message
-              console.log(jsonResponse);
-              if('errors' in jsonResponse){
-                //Form errrors
-              }else if('error_message' in jsonResponse){
-                // Other error unrelated to form
-              }else if('data' in jsonResponse){
-                // self.cars = jsonResponse.data;
-                console.log(jsonResponse.data)
-              } 
-          })
-          .catch (function(error){
-              console.log(error);
-          })              
-      },
       gotoCar(num){
           let router = this.$router;
           router.push(`/cars/${num}`);
@@ -473,9 +549,6 @@ const getCars = {
         let self = this;
         let user = JSON.parse(localStorage.getItem('user'));
         let jwt_token = user.token;
-        
-        // var searchParams = new URLSearchParams();
-        // searchParams.append();
         
         fetch(`/api/search?make=${self.make}&model=${self.model}`,{
              'method' :'GET',
@@ -489,16 +562,34 @@ const getCars = {
              return response.json();
          })
          .then(function (jsonResponse) {
-             // display a success message
-             console.log(jsonResponse);
              if('errors' in jsonResponse){
-               //Form errrors
+                self.messages = []
+                for (e in jsonResponse.errors){
+                    self.messages.push(jsonResponse.errors[e]);
+                }
+                self.on = true;
+                self.success = false;
              }else if('error_message' in jsonResponse){
-               // Other error unrelated to form
+                if(jsonResponse.error_message == 'Invalid token. Please login in again' || jsonResponse.error_message == 'Invalid Credentials'){
+                  self.messages = []
+                  self.messages.push(jsonResponse.error_message);
+                  self.on = true;
+                  self.success = false;
+                  setTimeout(() => {
+                    router.push('/logout')
+                  }, 1500);
+                }else{
+                  self.messages = []
+                  self.messages.push(jsonResponse.error_message);
+                  self.on = true;
+                  self.success = false;
+                }
                self.cars = [];
              }else if('data' in jsonResponse){
+                self.on = false;
+                self.success = false;
+               self.messages = [];
                self.cars = jsonResponse.data;
-               console.log(jsonResponse.data)
              }
          })
          .catch (function(error){
@@ -508,32 +599,74 @@ const getCars = {
   }
 };
 
-
 const getACar = {
   name: 'getACar',
   template: `
-    <br>
-    <button v-on:click="goBack" class="btn btn-primary">Back to Explore</button>
-    <br><br>
-    <div class="card card-dif" v-if="car != {}">
-        <img class ="card-img-top card-img-diff" v-bind:src=car.photo > 
-        <div class = "card-body sincar" id = "{{car.cid}}">
-            <div class="card-title">
-                <h3>{{car.year}} {{car.make}}</h3>
-            </div>
-            <p class="model card-subtitle text-muted">{{car.model}}</p>
-            <p class="card-text price">{{car.description}}</p>
-        </div>
-        <button v-on:click="addtofave(car.cid)" class="btn btn-primary heart"> 
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
-            <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
-          </svg> 
-        </button>
-    </div>
+  <br>
+  <div class="alert alert-success" role="alert" v-if="on && success" v-for="message in messages">
+    {{message}}
+  </div>
+  <div class="alert alert-danger" role="alert"  v-if="on && !success" >
+      <div v-for="message in messages">
+          <li> {{message}}</li>
+      </div>
+  </div>
+  <button v-on:click="goBack" class="btn btn-primary">Back to Explore</button>
+  <br><br>
+  <div class="card ch" v-if="car != {}">
+      <div class="row">
+          <div class="col-md-5 no-gutters">
+              <img class="col-md-12 nh" v-bind:src=car.photo  alt="Image of a Car">
+          </div>
+          <div class="col-md-7">
+              <div class="card-title ml-4 mt-4">
+                <h3 class="display-5 pb-0">{{car.year}} {{car.make}}</h3>
+              </div>
+              <div class="card-body pt-0">
+                  <p class="model card-subtitle text-muted">{{car.model}}</p><br>
+                  <p class="card-text text-muted">{{car.description}}</p>
+                  <div class="row">
+                      <div class="col-md-4">
+                        <p class="card-text"><span class="text-muted">Colour: </span>{{car.colour}}</p>
+                      </div>
+                      <div class="col-md-4">
+                        <p class="card-text"><span class="text-muted">Body Type: </span>{{car.car_type}}</p>
+                      </div>
+                  </div>
+                  <div class="row mb-3">
+                      <div class="col-md-4">
+                        <p class="card-text"><span class="text-muted">Price: </span>&dollar; {{car.price}}</p>
+                      </div>
+                      <div class="col-md-4">
+                        <p class="card-text"><span class="text-muted">Transmission: </span>{{car.transmission}}</p>
+                      </div>
+                  </div>
+                  <div class="d-flex justify-content-between mb-3">
+                      <button class="btn btn-us">Email Owner</button>
+                      <button v-if="!fav" v-on:click="addtofave(car.cid)" class="heart"> 
+                        <svg  xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                          <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                        </svg>
+                      </button>
+                      <button v-if="fav" v-on:click="removefave(car.cid)" class="heart full"> 
+                        <svg  xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                          <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                        </svg>
+                      </button>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+  <br><br>
   `, //
   data() {
       return {
         car: {},
+        fav: false,
+        on: false,
+        success: false,
+        messages: []
       }
   },
   created(){
@@ -555,12 +688,33 @@ const getACar = {
           return response.json();
       })
       .then(function (jsonResponse) {
-          // display a success message
           if('errors' in jsonResponse){
-            //Form errrors
+                self.messages = []
+                for (e in jsonResponse.errors){
+                    self.messages.push(jsonResponse.errors[e]);
+                }
+                self.on = true;
+                self.success = false;
           }else if('error_message' in jsonResponse){
-            // Other error unrelated to form
+            if(jsonResponse.error_message == 'Invalid token. Please login in again' || jsonResponse.error_message == 'Invalid Credentials'){
+              self.messages = []
+              self.messages.push(jsonResponse.error_message);
+              self.on = true;
+              self.success = false;
+              setTimeout(() => {
+                router.push('/logout')
+              }, 1500);
+            }else{
+              self.messages = []
+              self.messages.push(jsonResponse.error_message);
+              self.on = true;
+              self.success = false;
+            }
           }else if('data' in jsonResponse){
+            self.messages = [];
+            self.on = false;
+            self.success = false;
+            self.fav = jsonResponse.data.favourite;
             self.car = jsonResponse.data;
           }  
       })
@@ -574,33 +728,107 @@ const getACar = {
         router.push('/explore');
     },
     addtofave(id){
+      let self = this;
       let user = JSON.parse(localStorage.getItem('user'));
       let jwt_token = user.token;
 
       fetch(`/api/cars/${id}/favourite`,{
-        method:'POST',
-        headers:{
-            'X-CSRFToken': token,
-            'Authorization': `Bearer ${jwt_token}`
-        },
-        credentials: 'same-origin'
-    })
-    .then(function (response) {
-        return response.json();
-    })
-    .then(function (jsonResponse) {
-        // display a success message
-        if('errors' in jsonResponse){
-          //Form errrors
-        }else if('error_message' in jsonResponse){
-          // Other error unrelated to form
-        }else if('data' in jsonResponse){
-          console.log(jsonResponse.data);
-        }  
-    })
-    .catch (function(error){
-        console.log(error);
-    })
+          method:'POST',
+          headers:{
+              'X-CSRFToken': token,
+              'Authorization': `Bearer ${jwt_token}`
+          },
+          credentials: 'same-origin'
+      })
+      .then(function (response) {
+          return response.json();
+      })
+      .then(function (jsonResponse) {
+          if('errors' in jsonResponse){
+                self.messages = []
+                for (e in jsonResponse.errors){
+                    self.messages.push(jsonResponse.errors[e]);
+                }
+                self.on = true;
+                self.success = false;
+          }else if('error_message' in jsonResponse){
+            if(jsonResponse.error_message == 'Invalid token. Please login in again' || jsonResponse.error_message == 'Invalid Credentials'){
+              self.messages = []
+              self.messages.push(jsonResponse.error_message);
+              self.on = true;
+              self.success = false;
+              setTimeout(() => {
+                router.push('/logout')
+              }, 1500);
+            }else{
+              self.messages = []
+              self.messages.push(jsonResponse.error_message);
+              self.on = true;
+              self.success = false;
+            }
+          }else if('data' in jsonResponse){
+            self.messages = []
+            self.messages.push("Succesfuly Added to Favourites");
+            self.on = true;
+            self.success = true;
+            self.fav = !self.fav;
+          }  
+      })
+      .catch (function(error){
+          console.log(error);
+      })
+      
+    },
+    removefave(id){
+      let self = this;
+      let user = JSON.parse(localStorage.getItem('user'));
+      let jwt_token = user.token;
+
+      fetch(`/api/cars/${id}/unfavourite`,{
+          method:'POST',
+          headers:{
+              'X-CSRFToken': token,
+              'Authorization': `Bearer ${jwt_token}`
+          },
+          credentials: 'same-origin'
+      })
+      .then(function (response) {
+          return response.json();
+      })
+      .then(function (jsonResponse) {
+          if('errors' in jsonResponse){
+                self.messages = []
+                for (e in jsonResponse.errors){
+                    self.messages.push(jsonResponse.errors[e]);
+                }
+                self.on = true;
+                self.success = false;
+          }else if('error_message' in jsonResponse){
+            if(jsonResponse.error_message == 'Invalid token. Please login in again' || jsonResponse.error_message == 'Invalid Credentials'){
+              self.messages = []
+              self.messages.push(jsonResponse.error_message);
+              self.on = true;
+              self.success = false;
+              setTimeout(() => {
+                router.push('/logout')
+              }, 1500);
+            }else{
+              self.messages = []
+              self.messages.push(jsonResponse.error_message);
+              self.on = true;
+              self.success = false;
+            }
+          }else if('message' in jsonResponse){
+            self.messages = []
+            self.messages.push(jsonResponse.message);
+            self.on = true;
+            self.success = true;
+            self.fav = !self.fav; 
+          }  
+      })
+      .catch (function(error){
+          console.log(error);
+      })
       
     }
   },
@@ -612,58 +840,67 @@ const getUser = {
   template: `
     <br>
     <button v-on:click="goBack" class="btn btn-primary">Go Back to Explore</button>
-    <br>
-    <div class="card" v-if="user != {}">
-        <img class ="" v-bind:src=user.photo > 
-        <div class = "card-body sincar" id = "{{user.id}}">
-          <h3 class="card-title">{{user.name}}</h3>
-          <p class="model card-subtitle text-muted">{{user.username}}</p>
-          <p class="card-text"> {{user.biography}}</p>
+    <br><br>
+    <div class="card s-card" v-if="user != {}">
+        <div class="prof">
           <div>
-            <table>
-              <tr>
-                <td><h5>Email</h5></td>
-                <td>{{user.email}}</td>
-              </tr>
-              <tr>
-                <td><h5>Location</h5></td>
-                <td>{{user.location}}</td>
-              </tr>
-              <tr>
-                <td><h5>Joined</h5></td>
-                <td>{{user.date_joined}}</td>
-              </tr>
-            </table>
+            <img class ="prof-col-1 img2" v-bind:src=user.photo > 
+          </div>
+          <div class = "prof-col-2 card-body sincar" id = "{{user.id}}">
+            <h3 class="card-title display-6">{{user.name}}</h3>
+            <p class="model card-subtitle text-muted c-font">@ {{user.username}}</p>
+            <p class="card-text pt-3 pb-2">{{user.biography}}</p>
+            <div>
+              <table class="c-font">
+                <tr>
+                  <td><p class="m-grey">Email</p></td>
+                  <td class="u-data"><p>{{user.email}}</p></td>
+                </tr>
+                <tr>
+                  <td><p class="m-grey">Location</p></td>
+                  <td class="u-data"><p>{{user.location}}</p></td>
+                </tr>
+                <tr>
+                  <td><p class="m-grey">Joined</p></td>
+                  <td class="u-data"><p>{{user.date_joined}}</p></td>
+                </tr>
+              </table>
+            </div>
           </div>
         </div>
     </div>
 
-    <br><h1>Favourite Cars</h1>
+    <br><h1 class="display-6">Cars Favourited</h1>
     <div class = "card-set">
       <div class = "cars card" v-for="car in faves">
-          <img class ="card-img-top" v-bind:src=car.photo > 
+          <img class ="card-img-top img3" v-bind:src=car.photo > 
           <div class = "card-body sincar" id = "{{car.cid}}">
-              <div class="card-title">
-                  <h3>{{car.year}} {{car.make}}</h3>
+              <div class="card-title-2 form-inline">
+                  <h5 class="year">{{car.year}} {{car.make}}</h5>
                   <p class="price">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tag" viewBox="0 0 16 16">
                           <path d="M6 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm-1 0a.5.5 0 1 0-1 0 .5.5 0 0 0 1 0z"/>
                           <path d="M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1zm0 5.586 7 7L13.586 9l-7-7H2v4.586z"/>
                       </svg>
-                      {{car.price}}
+                      $ {{car.price}}
                   </p>
               </div>
-              <p class="model card-subtitle text-muted">{{car.model}}</p> 
-              <button v-on:click="gotoCar(car.cid)" class="btn btn-primary btn-block">View Details</button>
+              <p class="model card-subtitle text-muted">{{car.model}}</p>             
+          </div>
+          <div class="card-footer">
+            <button v-on:click="gotoCar(car.cid)" class="btn btn-primary btn-block">View more details</button>
           </div>
       </div>
     </div>
   `,
   data() {
       return {
-        user: {},//wah gwan add another favourite car
-        faves: [],//mi realize is probably the check over view
-      }//hmmmmmmm come yah lol
+        user: {},
+        faves: [],
+        on: false,
+        success: false,
+        messages: []
+      }
   },
   created(){
       let self = this;
@@ -684,11 +921,28 @@ const getUser = {
           return response.json();
       })
       .then(function (jsonResponse) {
-          // display a success message
           if('errors' in jsonResponse){
-            //Form errrors
+                self.messages = []
+                for (e in jsonResponse.errors){
+                    self.messages.push(jsonResponse.errors[e]);
+                }
+                self.on = true;
+                self.success = false;
           }else if('error_message' in jsonResponse){
-            // Other error unrelated to form
+            if(jsonResponse.error_message == 'Invalid token. Please login in again' || jsonResponse.error_message == 'Invalid Credentials'){
+              self.messages = []
+              self.messages.push(jsonResponse.error_message);
+              self.on = true;
+              self.success = false;
+              setTimeout(() => {
+                router.push('/logout')
+              }, 1500);
+            }else{
+              self.messages = []
+              self.messages.push(jsonResponse.error_message);
+              self.on = true;
+              self.success = false;
+            }
           }else if('data' in jsonResponse){
             self.user = jsonResponse.data;
             return fetch(`/api/users/${id}/favourites`,{
@@ -703,30 +957,54 @@ const getUser = {
                 return response.json();
             })
             .then(function (jsonResponse) {
-                // display a success message
                 if('errors' in jsonResponse){
-                  //Form errrors
+                  self.messages = []
+                  for (e in jsonResponse.errors){
+                      self.messages.push(jsonResponse.errors[e]);
+                  }
+                  self.on = true;
+                  self.success = false;
                 }else if('error_message' in jsonResponse){
-                  // Other error unrelated to form
+                  if(jsonResponse.error_message == 'Invalid token. Please login in again' || jsonResponse.error_message == 'Invalid Credentials'){
+                    self.messages = []
+                    self.messages.push(jsonResponse.error_message);
+                    self.on = true;
+                    self.success = false;
+                    setTimeout(() => {
+                      router.push('/logout')
+                    }, 1500);
+                  }else{
+                    self.messages = []
+                    self.messages.push(jsonResponse.error_message);
+                    self.on = true;
+                    self.success = false;
+                  }
                 }else if('data' in jsonResponse){
                   self.faves = jsonResponse.data;
-                  console.log(jsonResponse.data)
-                  // console.log(self.user)
+                  self.messages = [];
+                  self.on = false;
+                  self.success = false;
                 }  
             })
-            // console.log(self.user)
           }  
       })
       .catch (function(error){
           console.log(error);
         })
-      },//what happen? wym for favs? uu check the get favs function? 
+      },
   methods: {
     goBack(){
       let router = this.$router;
       router.push('/explore');
     },
+    gotoCar(num){
+      let router = this.$router;
+      router.push(`/cars/${num}`);
+    },
     getfaves(){
+      let user = JSON.parse(localStorage.getItem('user'));
+      let jwt_token = user.token;
+
       fetch(`/api/users/${id}/favourites`,{
         method:'GET',
         headers:{
@@ -739,15 +1017,27 @@ const getUser = {
           return response.json();
       })
       .then(function (jsonResponse) {
-          // display a success message
           if('errors' in jsonResponse){
-            //Form errrors
+                for (e in jsonResponse.errors){
+                    console.log(jsonResponse.errors[e]);
+                }
           }else if('error_message' in jsonResponse){
-            // Other error unrelated to form
+            if(jsonResponse.error_message == 'Invalid token. Please login in again' || jsonResponse.error_message == 'Invalid Credentials'){
+              self.messages = []
+              console.log(jsonResponse.error_message);
+              self.on = true;
+              self.success = false;
+              setTimeout(() => {
+                router.push('/logout')
+              }, 1500);
+            }else{
+              console.log(jsonResponse.error_message);
+            }
           }else if('data' in jsonResponse){
             self.faves = jsonResponse.data;
-            console.log(jsonResponse.data)
-            // console.log(self.user)
+            self.messages = [];
+            self.on = false;
+            self.success = false;
           }  
       })
       .catch (function(error){
@@ -760,16 +1050,19 @@ const getUser = {
 const Logout = {
   name: 'logout',
   template: `
-  <br>
-  <div>
-  <h3>Logging out...</h3>
-  </div>
-  <br>
+    <br><br>
+    <div>
+      <h3 class="display-5 text-center">Logging out...</h3>
+      <div class="mx-auto">
+        <img class="mx-auto" id="logoutpic" src="static/imgs/logout.svg">
+      </div> 
+    </div>
+    <br>
   `,
   mounted(){
     setTimeout(() => {
         this.logout()
-    }, 5000)
+    }, 1000)
   },
   methods:{
     logout(){
@@ -816,4 +1109,3 @@ const router = VueRouter.createRouter({
 
 app.use(router);
 app.mount('#app');
-
