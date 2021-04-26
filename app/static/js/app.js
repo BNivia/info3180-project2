@@ -90,6 +90,9 @@ const Home = {
   `,
   data() {
       return {}
+  },
+  created(){
+    localStorage.removeItem('user');
   }
 };
 
@@ -629,18 +632,18 @@ const getACar = {
                   <p class="model card-subtitle text-muted">{{car.model}}</p><br>
                   <p class="card-text text-muted">{{car.description}}</p>
                   <div class="row">
-                      <div class="col-md-4">
+                      <div class="col-md-5">
                         <p class="card-text"><span class="text-muted">Colour: </span>{{car.colour}}</p>
                       </div>
-                      <div class="col-md-4">
+                      <div class="col-md-6">
                         <p class="card-text"><span class="text-muted">Body Type: </span>{{car.car_type}}</p>
                       </div>
                   </div>
                   <div class="row mb-3">
-                      <div class="col-md-4">
+                      <div class="col-md-5">
                         <p class="card-text"><span class="text-muted">Price: </span>&dollar; {{car.price}}</p>
                       </div>
-                      <div class="col-md-4">
+                      <div class="col-md-6">
                         <p class="card-text"><span class="text-muted">Transmission: </span>{{car.transmission}}</p>
                       </div>
                   </div>
