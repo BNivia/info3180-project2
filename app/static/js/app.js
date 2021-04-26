@@ -254,6 +254,7 @@ const signupForm = {
   },
   methods:{
       signup(){
+          let self = this;
           let router = this.$router;
           let form = document.forms[0];
           let form_data = new FormData(form);
@@ -284,9 +285,11 @@ const signupForm = {
                 self.success = false;
               }else if('message' in jsonResponse){
                 self.messages = [];
-                self.on = false;
-                self.success = false;
-                router.push('/login');
+                self.on = true;
+                self.success = true;
+                setTimeout(() => {
+                  router.push('/login');
+                }, 1300);  
               }  
           })
           .catch (function(error){
