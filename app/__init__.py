@@ -12,6 +12,8 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-
-app.config.from_object(Config)
+obj = Config
+if obj.SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
+    obj.SQLALCHEMY_DATABASE_URI = obj.SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql://", 1)
+app.config.from_object(obj)
 from app import views
