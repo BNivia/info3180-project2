@@ -210,7 +210,6 @@ select{
     color: grey;
 }
 
-#logoutpic{
-    width: 70%;
-    height: 70%;
+.img4{
+    margin: 20px 100px;
 }

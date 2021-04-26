@@ -1051,13 +1051,10 @@ const Logout = {
   name: 'logout',
   template: `
     <br><br>
-    <div>
-      <h3 class="display-5 text-center">Logging out...</h3>
-      <div class="mx-auto">
-        <img class="mx-auto" id="logoutpic" src="static/imgs/logout.svg">
-      </div> 
+    <div class="mx-auto">
+      <h3 class="display-5 text-center">Logging out...</h3><br>
+      <img id="logoutpic" class="img4" src="static/imgs/logout.svg">
     </div>
-    <br>
   `,
   mounted(){
     setTimeout(() => {
